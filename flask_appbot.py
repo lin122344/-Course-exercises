@@ -2,8 +2,7 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from flask import Flask, request, abort
-
+from flask import Flask, request, abort,render_template
 from linebot.v3 import (
     WebhookHandler
 )
@@ -36,7 +35,11 @@ if channel_access_token is None:
 
 
 handler=WebhookHandler(channel_secret)
-Configuration=Configuration(access_token=channel_access_token)
+configuration=Configuration(access_token=channel_access_token)
+
+@app.route("/")  #裝飾器 :跟目錄要做什麼事
+def say_hello_world(username=""):
+    return render_template ("hello.html",name=username)
 
 
 #設計一個callback的路由，提供給Line 官方後台去呼叫
@@ -80,4 +83,4 @@ def handle_message(event):
         )
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

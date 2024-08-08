@@ -3,7 +3,7 @@ from flask import Flask, redirect, url_for #flask 是工具箱(moduie模組)，F
 app = Flask(__name__)#製作出一個由Flask類別生成的物件(Object)
 
 @app.route("/")  #裝飾器 :跟目錄要做什麼事
-def say_hello_world():
+def say_hello_world(username=""):
     return "<h1>Hello, World!</h1>"
 
 @app.route("/tell_me_a_joke")  #裝飾器 :跟目錄要做什麼事
