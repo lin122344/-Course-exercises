@@ -20,34 +20,25 @@ from linebot.v3.webhooks import (
     MessageEvent, #傳輸過來的方法
     TextMessageContent  #使用者傳過來的資料格式
 )
-import os,sys
+from handle_keys import get_secret_and_token
+
+
 app = Flask(__name__) 
+keys = get_secret_and_token() 
+handler = WebhookHandler(keys['LINEBOT_KEY'])
+configuration = Configuration(access_token=keys['LINEBOT_ACCESS_TOKEN'])
 
-# get channel_secret and channel_access_token from your environment variable
-channel_secret = os.getenv('LINEBOT_KEY', None)
-channel_access_token = os.getenv('LINEBOT_ACCESS_TOKEN', None)
-if channel_secret is None:
-    print('Specify LINEBOT_KEY as environment variable.')
-    sys.exit(1)
-if channel_access_token is None:
-    print('Specify LINEBOT_ACCESS_TOKEN as environment variable.')
-    sys.exit(1)
-
-
-handler=WebhookHandler(channel_secret)
-configuration=Configuration(access_token=channel_access_token)
-
-@app.route("/")  #裝飾器 :跟目錄要做什麼事
+@app.route("/") 
 def say_hello_world(username=""):
     return render_template ("hello.html",name=username)
 
 
+@app.route("/callback", methods=['POST'])  
+def callback():
 #設計一個callback的路由，提供給Line 官方後台去呼叫
 #也就是所謂的呼叫Webhook Sever
 #因為官方會把使用者傳輸的訊息轉傳給Webhook Sever
 #所已會使Restful API 的 PORT 方法
-@app.route("/callback", methods=['POST'])  
-def callback():
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
 
@@ -65,12 +56,12 @@ def callback():
     return 'OK'
 
 
+
+@handler.add(MessageEvent, message=TextMessageContent)
+def handle_message(event):
 #根據不同的使用者事件(EVENT),用不同方式回應
 #eg.MessageEvent 代表使用者單純傳訊息事件
 #TextMessageContent 代表使用者傳輸的訊息內容是文字
-#
-@handler.add(MessageEvent, message=TextMessageContent)
-def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
