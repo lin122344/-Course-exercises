@@ -62,7 +62,7 @@ def handle_message(event):
 #根據不同的使用者事件(EVENT),用不同方式回應
 #eg.MessageEvent 代表使用者單純傳訊息事件
 #TextMessageContent 代表使用者傳輸的訊息內容是文字
-
+    user_id = event. source .user_id
     user_message= event.message.text #使用者傳過來的訊息
     api_key = keys["openAI_APIKEY"]
     if api_key and user_message:
